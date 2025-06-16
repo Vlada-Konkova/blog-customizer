@@ -5,6 +5,7 @@ import {
 	ArticleStateType,
 	backgroundColors,
 	contentWidthArr,
+	defaultArticleState,
 	fontColors,
 	fontFamilyOptions,
 	fontSizeOptions,
@@ -16,31 +17,33 @@ import { Select } from 'src/ui/select/Select';
 import { useOutsideClickClose } from 'src/ui/select/hooks/useOutsideClickClose';
 import { Text } from 'src/ui/text';
 
-interface ArticelParamsFormProps {
+interface ArticleParamsFormProps {
 	stateArticle: ArticleStateType;
 	setStateArticle: (data: ArticleStateType) => void;
 }
 export const ArticleParamsForm = ({
 	stateArticle,
 	setStateArticle,
-}: ArticelParamsFormProps) => {
-	const [isOpen, setIsOpen] = useState<boolean>(false);
+}: ArticleParamsFormProps) => {
+	const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 	const [selectedStateArticle, setSelectedStateArticle] =
 		useState<ArticleStateType>(stateArticle);
 
 	const formRef = useRef<HTMLDivElement>(null);
 
 	useOutsideClickClose({
-		isOpen,
+		isOpen: isMenuOpen,
 		rootRef: formRef,
-		onChange: setIsOpen,
+		onChange: setIsMenuOpen,
+		onClose: () => setSelectedStateArticle(stateArticle),
 	});
 
 	useEffect(() => {
-		if (!isOpen) {
+		if (!isMenuOpen) {
 			setSelectedStateArticle(stateArticle);
+			return;
 		}
-	}, [isOpen, stateArticle]);
+	}, [isMenuOpen, stateArticle]);
 
 	const handleChoiceState = (
 		key: keyof ArticleStateType,
@@ -54,15 +57,19 @@ export const ArticleParamsForm = ({
 	};
 
 	const handleResetStateArticle = () => {
-		setSelectedStateArticle(stateArticle);
-		setStateArticle(stateArticle);
+		setSelectedStateArticle(defaultArticleState);
+		setStateArticle(defaultArticleState);
+		setIsMenuOpen(false);
 	};
 
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
+			<ArrowButton
+				isOpen={isMenuOpen}
+				onClick={() => setIsMenuOpen(!isMenuOpen)}
+			/>
 			<aside
-				className={clsx(styles.container, isOpen && styles.container_open)}
+				className={clsx(styles.container, isMenuOpen && styles.container_open)}
 				ref={formRef}>
 				<form className={styles.form} onSubmit={handleSubmitStateArticle}>
 					<Text size={31} weight={800} uppercase>
